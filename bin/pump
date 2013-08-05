@@ -44,6 +44,7 @@ var main = function() {
 // Gets the configuration vars for this server from config files
 
 var getConfig = function(filename) {
+
     var files,
         config = {},
         i,
