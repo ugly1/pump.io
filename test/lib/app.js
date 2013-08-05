@@ -1,4 +1,5 @@
-var Step = require("step"),
+var _ = require("underscore"),
+    Step = require("step"),
     cluster = require("cluster"),
     mod = require("../../lib/app"),
     fs = require("fs"),
