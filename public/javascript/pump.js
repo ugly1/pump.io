@@ -602,14 +602,14 @@ if (!window.Pump) {
             success: function(act) {
                 callback(null, act);
             },
-            error: function(jqXHR, textStatus, errorThrown) {
+            error: function(model, xhr, options) {
                 var type, response;
-                type = jqXHR.getResponseHeader("Content-Type");
+                type = xhr.getResponseHeader("Content-Type");
                 if (type && type.indexOf("application/json") !== -1) {
-                    response = JSON.parse(jqXHR.responseText);
+                    response = JSON.parse(xhr.responseText);
                     callback(new Error(response.error), null);
                 } else {
-                    callback(new Error(errorThrown), null);
+                    callback(new Error("Error saving activity: " + model.id), null);
                 }
             }
         });
@@ -643,6 +643,17 @@ if (!window.Pump) {
     Pump.setTitle = function(title) {
         // We don't accept HTML in title or site name; just text
         $("title").text(title + " - " + Pump.config.site);
+    };
+
+    Pump.ajaxError = function(jqXHR, textStatus, errorThrown) {
+        var type = jqXHR.getResponseHeader("Content-Type"),
+            response;
+        if (type && type.indexOf("application/json") !== -1) {
+            response = JSON.parse(jqXHR.responseText);
+            Pump.error(response.error);
+        } else {
+            Pump.error(errorThrown);
+        }
     };
 
 })(window._, window.$, window.Backbone, window.Pump);
