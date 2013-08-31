@@ -1345,12 +1345,14 @@
                 "activity-object-collection"],
         modelName: "activity",
         events: {
+            "mouseenter": "maybeShowExtraMenu",
+            "mouseleave": "maybeHideExtraMenu",
             "click .favorite": "favoriteObject",
             "click .unfavorite": "unfavoriteObject",
             "click .share": "shareObject",
             "click .unshare": "unshareObject",
             "click .comment": "openComment",
-            "click .object-image": "openImage"
+            "click .object-image": "openImage",
         },
         setupSubs: function() {
             var view = this,
@@ -1363,6 +1365,30 @@
             }
 
             view.replyStream = new Pump.ReplyStreamView({el: $el, model: model.object.replies});
+        },
+        maybeShowExtraMenu: function() {
+            var view = this,
+                activity = view.model,
+                principal = Pump.principal;
+
+            if (principal && activity.actor && principal.id == activity.actor.id) {
+                if (!view.extraMenu) {
+                    view.extraMenu = new Pump.ExtraMenu({model: activity.object, parent: view});
+                    view.extraMenu.show();
+                }
+            }
+        },
+        maybeHideExtraMenu: function() {
+            var view = this,
+                activity = view.model,
+                principal = Pump.principal;
+
+            if (principal && activity.actor && principal.id == activity.actor.id) {
+                if (view.extraMenu) {
+                    view.extraMenu.hide();
+                    view.extraMenu = null;
+                }
+            }
         },
         favoriteObject: function() {
             var view = this,
@@ -3236,14 +3262,14 @@
             initSelection: function(element, callback) {
                 var val = element.val(),
                     strToObj = function(str) {
-                    var colon = str.indexOf(":"),
-                        type = str.substr(0, colon),
-                        id = str.substr(colon+1);
-                    return new Pump.ActivityObject({
-                        id: id,
-                        objectType: type
-                    });
-                },
+                        var colon = str.indexOf(":"),
+                            type = str.substr(0, colon),
+                            id = str.substr(colon+1);
+                        return new Pump.ActivityObject({
+                            id: id,
+                            objectType: type
+                        });
+                    },
                     selection = [],
                     obj = (val && val.length > 0) ? strToObj(val) : null;
 
@@ -3312,5 +3338,61 @@
             }
         };
     };
+
+    Pump.ExtraMenu = Pump.TemplateView.extend({
+        parent: null,
+        templateName: "extra-menu",
+        events: {
+            "click .delete-object": "deleteObject"
+        },
+        initialize: function(options) {
+            var view = this;
+            if (options.parent) {
+                view.parent = options.parent;
+            }
+        },
+        show: function() {
+            var view = this;
+            view.render();
+        },
+        ready: function() {
+            var view = this;
+            if (view.parent && view.parent.$el) {
+                view.parent.$el.prepend(view.$el);
+            }
+        },
+        hide: function() {
+            var view = this;
+            view.$el.remove();
+        },
+        deleteObject: function() {
+            var view = this,
+                model = view.model,
+                act = new Pump.Activity({
+                    verb: "delete",
+                    object: view.model.toJSON()
+                }),
+                prompt = "Delete this " + model.get("objectType") + "?";
+
+            // Hide the dropdown, since we were selected
+            view.$el.dropdown('toggle');
+
+            Pump.areYouSure(prompt, function(err, sure) {
+                if (sure) {
+                    Pump.newMinorActivity(act, function(err, act) {
+                        if (err) {
+                            view.showError(err);
+                        } else {
+                            Pump.addMinorActivity(act);
+                            // Remove the parent from the list
+                            view.parent.$el.remove();
+                            // Remove the model from the client-side collection
+                            model.collection.remove(model.id);
+                        }
+                    });
+                }
+            });
+        }
+    });
 
 })(window._, window.$, window.Backbone, window.Pump);
