@@ -557,74 +557,36 @@
             "click #post-picture-button": "postPictureModal"
         },
         postNoteModal: function() {
-            var view = this,
-                profile = Pump.principal,
-                lists = profile.lists,
-                following = profile.following,
-                startSpin = function() {
-                    view.$('#post-note-button').prop('disabled', true).spin(true);
-                },
-                stopSpin = function() {
-                    view.$('#post-note-button').prop('disabled', false).spin(false);
-                };
-
-            startSpin();
-
-            following.getAll(function(err) {
-                if (err) {
-                    view.showError(err);
-                    stopSpin();
-                } else {
-                    Pump.fetchObjects([lists], function(err, objs) {
-                        if (err) {
-                            view.showError(err);
-                            stopSpin();
-                        } else {
-                            Pump.showModal(Pump.PostNoteModal, {ready: function() {
-                                                                   stopSpin();
-                                                                },
-                                                                data: {user: Pump.principalUser,
-                                                                       lists: lists,
-                                                                       following: following}});
-                        }
-                    });
-                }
-            });
-
-            return false;
+            var view = this;
+            view.showPostingModal('#post-note-button', Pump.PostNoteModal);
         },
         postPictureModal: function() {
+            var view = this;
+            view.showPostingModal('#post-picture-button', Pump.PostPictureModal);
+        },
+        showPostingModal: function(btn, Cls) {
             var view = this,
                 profile = Pump.principal,
                 lists = profile.lists,
-                following = profile.following,
                 startSpin = function() {
-                    view.$('#post-picture-button').prop('disabled', true).spin(true);
+                    view.$(btn).prop('disabled', true).spin(true);
                 },
                 stopSpin = function() {
-                    view.$('#post-picture-button').prop('disabled', false).spin(false);
+                    view.$(btn).prop('disabled', false).spin(false);
                 };
 
             startSpin();
 
-            following.getAll(function(err) {
+            Pump.fetchObjects([lists], function(err, objs) {
                 if (err) {
                     view.showError(err);
                     stopSpin();
                 } else {
-                    Pump.fetchObjects([lists], function(err, objs) {
-                        if (err) {
-                            view.showError(err);
-                            stopSpin();
-                        } else {
-                            Pump.showModal(Pump.PostPictureModal, {ready: function() {
-                                                                   stopSpin();
-                                                                },
-                                                                data: {user: Pump.principalUser,
-                                                                       lists: lists,
-                                                                       following: following}});
-                        }
-                    });
+                    Pump.showModal(Cls, {data: {user: Pump.principalUser,
+                                                lists: lists},
+                                         ready: function() {
+                                             stopSpin();
+                                         }});
                 }
             });
 
@@ -1383,12 +1345,14 @@
                 "activity-object-collection"],
         modelName: "activity",
         events: {
+            "mouseenter": "maybeShowExtraMenu",
+            "mouseleave": "maybeHideExtraMenu",
             "click .favorite": "favoriteObject",
             "click .unfavorite": "unfavoriteObject",
             "click .share": "shareObject",
             "click .unshare": "unshareObject",
             "click .comment": "openComment",
-            "click .object-image": "openImage"
+            "click .object-image": "openImage",
         },
         setupSubs: function() {
             var view = this,
@@ -1401,6 +1365,30 @@
             }
 
             view.replyStream = new Pump.ReplyStreamView({el: $el, model: model.object.replies});
+        },
+        maybeShowExtraMenu: function() {
+            var view = this,
+                activity = view.model,
+                principal = Pump.principal;
+
+            if (principal && activity.actor && principal.id == activity.actor.id) {
+                if (!view.extraMenu) {
+                    view.extraMenu = new Pump.ExtraMenu({model: activity.object, parent: view});
+                    view.extraMenu.show();
+                }
+            }
+        },
+        maybeHideExtraMenu: function() {
+            var view = this,
+                activity = view.model,
+                principal = Pump.principal;
+
+            if (principal && activity.actor && principal.id == activity.actor.id) {
+                if (view.extraMenu) {
+                    view.extraMenu.hide();
+                    view.extraMenu = null;
+                }
+            }
         },
         favoriteObject: function() {
             var view = this,
@@ -1643,7 +1631,9 @@
                     repl = new Pump.ReplyView({model: object});
 
                     repl.on("ready", function() {
+
                         view.stopSpin();
+
                         view.$el.replaceWith(repl.$el);
                     });
 
@@ -2727,12 +2717,14 @@
         templateName: 'post-note',
         parts: ["recipient-selector"],
         ready: function() {
-            var view = this;
+            var view = this,
+                opts = Pump.selectOpts();
+
             view.$('#note-content').wysihtml5({
                 customTemplates: Pump.wysihtml5Tmpl
             });
-            view.$("#note-to").select2();
-            view.$("#note-cc").select2();
+            view.$("#note-to").select2(opts);
+            view.$("#note-cc").select2(opts);
         },
         events: {
             "click #send-note": "postNote"
@@ -2758,6 +2750,14 @@
                         objectType: type
                     });
                 };
+
+            if (_.isString(to)) {
+                to = to.split(",");
+            }
+
+            if (_.isString(cc)) {
+                cc = cc.split(",");
+            }
 
             if (to && to.length > 0) {
                 act.to = new Pump.ActivityObjectBag(_.map(to, strToObj));
@@ -2794,10 +2794,11 @@
             "click #send-picture": "postPicture"
         },
         ready: function() {
-            var view = this;
+            var view = this,
+                opts = Pump.selectOpts();
 
-            view.$("#picture-to").select2();
-            view.$("#picture-cc").select2();
+            view.$("#picture-to").select2(opts);
+            view.$("#picture-cc").select2(opts);
 
             view.$('#picture-description').wysihtml5({
                 customTemplates: Pump.wysihtml5Tmpl
@@ -2845,6 +2846,14 @@
                             verb: "post",
                             object: responseJSON.obj
                         });
+
+                    if (_.isString(to)) {
+                        to = to.split(",");
+                    }
+
+                    if (_.isString(cc)) {
+                        cc = cc.split(",");
+                    }
 
                     if (to && to.length > 0) {
                         act.to = new Pump.ActivityObjectBag(_.map(to, strToObj));
@@ -3239,5 +3248,151 @@
                        {data: {question: question},
                         callback: callback});
     };
+
+    Pump.selectOpts = function() {
+        var user = Pump.principalUser,
+            lists = Pump.principal.lists,
+            followersUrl = Pump.principal.followers.url();
+
+        return {
+            width: "90%",
+            multiple: true,
+            placeholder: "Search for a user or list",
+            minimumInputLength: 2,
+            initSelection: function(element, callback) {
+                var val = element.val(),
+                    strToObj = function(str) {
+                        var colon = str.indexOf(":"),
+                            type = str.substr(0, colon),
+                            id = str.substr(colon+1);
+                        return new Pump.ActivityObject({
+                            id: id,
+                            objectType: type
+                        });
+                    },
+                    selection = [],
+                    obj = (val && val.length > 0) ? strToObj(val) : null;
+
+                if (obj) {
+                    if (obj.id == "http://activityschema.org/collection/public") {
+                        selection.push({id: "collection:http://activityschema.org/collection/public",
+                                        text: "Public"});
+                    } else if (obj.id == followersUrl) {
+                        selection.push({id: "collection:" + followersUrl,
+                                        text: "Followers"});
+                    } else {
+                        // XXX: Get the object remotely
+                    }
+                }
+                callback(selection);
+            },
+            query: function(options) {
+                var term = options.term.toLowerCase(),
+                    lmatch = lists.items.filter(function(item) {
+                        return item.get("displayName").toLowerCase().indexOf(term) != -1;
+                    });
+
+                Pump.ajax({
+                    type: "GET",
+                    dataType: "json",
+                    url: Pump.fullURL("/api/user/"+user.get("nickname")+"/following?q="+term),
+                    success: function(data) {
+                        var people = _.map(data.items, function(item) {
+                            return {id: item.objectType + ":" + item.id,
+                                    text: item.displayName};
+                        }),
+                            results = [];
+
+
+                        if ("Public".toLowerCase().indexOf(term) != -1) {
+                            results.push({id: "collection:http://activityschema.org/collection/public",
+                                          text: "Public"});
+                        }
+
+                        if ("Followers".toLowerCase().indexOf(term) != -1) {
+                            results.push({id: "collection:"+followersUrl,
+                                          text: "Followers"});
+                        }
+
+                        if (people.length > 0) {
+                            results.push({ text: "People", children: people });
+                        }
+
+                        if (lmatch.length > 0) {
+                            results.push({ text: "Lists",
+                                           children: _.map(lmatch, function(list) {
+                                               return {id: list.get("objectType") + ":" + list.id,
+                                                       text: list.get("displayName")};
+                                           })
+                                         });
+                        }
+
+                        options.callback({
+                            results: results
+                        });
+                    },
+                    error: function(jqxhr) {
+                        options.callback([]);
+                    }
+                });
+            }
+        };
+    };
+
+    Pump.ExtraMenu = Pump.TemplateView.extend({
+        parent: null,
+        templateName: "extra-menu",
+        events: {
+            "click .delete-object": "deleteObject"
+        },
+        initialize: function(options) {
+            var view = this;
+            if (options.parent) {
+                view.parent = options.parent;
+            }
+        },
+        show: function() {
+            var view = this;
+            view.render();
+        },
+        ready: function() {
+            var view = this;
+            if (view.parent && view.parent.$el) {
+                view.parent.$el.prepend(view.$el);
+            }
+        },
+        hide: function() {
+            var view = this;
+            view.$el.remove();
+        },
+        deleteObject: function() {
+            var view = this,
+                model = view.model,
+                act = new Pump.Activity({
+                    verb: "delete",
+                    object: view.model.toJSON()
+                }),
+                prompt = "Delete this " + model.get("objectType") + "?";
+
+            // Hide the dropdown, since we were selected
+            view.$el.dropdown('toggle');
+
+            Pump.areYouSure(prompt, function(err, sure) {
+                if (sure) {
+                    Pump.newMinorActivity(act, function(err, act) {
+                        if (err) {
+                            view.showError(err);
+                        } else {
+                            Pump.addMinorActivity(act);
+                            // Remove the parent from the list
+                            view.parent.$el.remove();
+                            // Remove the model from the client-side collection
+                            model.collection.remove(model.id);
+                        }
+                    });
+                }
+            });
+        }
+    });
 
 })(window._, window.$, window.Backbone, window.Pump);
