@@ -1,6 +1,6 @@
-// group-foreign-id-test.js
+// activityobject-foreign-id-test.js
 //
-// Add a group with an externally-created ID
+// Add an activity object with an externally-created ID
 //
 // Copyright 2013, E14N https://e14n.com/
 //
@@ -32,9 +32,9 @@ var assert = require("assert"),
     validActivityObject = actutil.validActivityObject,
     validFeed = actutil.validFeed;
 
-var suite = vows.describe("group foreign id test");
+var suite = vows.describe("activityobject foreign id test");
 
-// A batch to test groups with foreign IDs
+// A batch to test activity objects with foreign IDs
 
 suite.addBatch({
     "When we set up the app": {
@@ -51,18 +51,18 @@ suite.addBatch({
         },
         "and we register a user": {
             topic: function() {
-                newCredentials("walter", "he1s3nbe4g", this.callback);
+                newCredentials("jesse", "chili*p!", this.callback);
             },
             "it works": function(err, cred) {
                 assert.ifError(err);
                 assert.isObject(cred);
             },
-            "and we GET the group endpoint with no ID parameter": {
+            "and we GET the activity object endpoint with no ID parameter": {
                 topic: function(cred) {
                     var cb = this.callback;
                     Step(
                         function() {
-                            var url = "http://localhost:4815/api/group";
+                            var url = "http://localhost:4815/api/image";
                             httputil.getJSON(url, cred, this);
                         },
                         function(err, doc, response) {
@@ -76,16 +76,16 @@ suite.addBatch({
                         }
                     );
                 },
-                "it fails correctly": function(err, group) {
+                "it fails correctly": function(err, image) {
                     assert.ifError(err);
                 }
             },
-            "and we GET the group endpoint with an ID that doesn't exist": {
+            "and we GET the activity object endpoint with an ID that doesn't exist": {
                 topic: function(cred) {
                     var cb = this.callback;
                     Step(
                         function() {
-                            var url = "http://localhost:4815/api/group?id=tag:pump.io,2012:test:group:non-existent";
+                            var url = "http://localhost:4815/api/image?id=tag:pump.io,2012:test:image:non-existent";
                             httputil.getJSON(url, cred, this);
                         },
                         function(err, doc, response) {
@@ -99,22 +99,22 @@ suite.addBatch({
                         }
                     );
                 },
-                "it fails correctly": function(err, group) {
+                "it fails correctly": function(err, image) {
                     assert.ifError(err);
                 }
             },
-            "and we create a new group with a foreign ID": {
+            "and we create a new image with a foreign ID": {
                 topic: function(cred) {
                     var cb = this.callback;
                     Step(
                         function() {
-                            var url = "http://localhost:4815/api/user/walter/feed",
+                            var url = "http://localhost:4815/api/user/jesse/feed",
                                 activity = {
                                     "verb": "create",
                                     "object": {
-                                        "objectType": "group",
-                                        "id": "tag:pump.io,2012:test:group:1",
-                                        "displayName": "Friends"
+                                        "objectType": "image",
+                                        "id": "tag:pump.io,2012:test:image:1",
+                                        "displayName": "Me and Emilio down by the schoolyard"
                                     }
                                 };
                             httputil.postJSON(url, cred, activity, this);
@@ -133,26 +133,26 @@ suite.addBatch({
                 },
                 "its self-link uses the foreign ID format": function(err, activity) {
                     assert.ifError(err);
-                    assert.equal(activity.object.links.self.href, "http://localhost:4815/api/group?id="+encodeURIComponent("tag:pump.io,2012:test:group:1"));
+                    assert.equal(activity.object.links.self.href, "http://localhost:4815/api/image?id="+encodeURIComponent("tag:pump.io,2012:test:image:1"));
                 },
-                "its members feed uses the foreign ID format": function(err, activity) {
+                "its likes feed uses the foreign ID format": function(err, activity) {
                     assert.ifError(err);
-                    assert.equal(activity.object.members.url, "http://localhost:4815/api/group/members?id="+encodeURIComponent("tag:pump.io,2012:test:group:1"));
+                    assert.equal(activity.object.likes.url, "http://localhost:4815/api/image/likes?id="+encodeURIComponent("tag:pump.io,2012:test:image:1"));
                 },
-                "its inbox feed uses the foreign ID format": function(err, activity) {
+                "its replies feed uses the foreign ID format": function(err, activity) {
                     assert.ifError(err);
-                    assert.equal(activity.object.links["activity-inbox"].href, "http://localhost:4815/api/group/inbox?id="+encodeURIComponent("tag:pump.io,2012:test:group:1"));
+                    assert.equal(activity.object.replies.url, "http://localhost:4815/api/image/replies?id="+encodeURIComponent("tag:pump.io,2012:test:image:1"));
                 },
-                "its documents feed uses the foreign ID format": function(err, activity) {
+                "its shares feed uses the foreign ID format": function(err, activity) {
                     assert.ifError(err);
-                    assert.equal(activity.object.documents.url, "http://localhost:4815/api/group/documents?id="+encodeURIComponent("tag:pump.io,2012:test:group:1"));
+                    assert.equal(activity.object.shares.url, "http://localhost:4815/api/image/shares?id="+encodeURIComponent("tag:pump.io,2012:test:image:1"));
                 },
-                "and we GET the group": {
+                "and we GET the image": {
                     topic: function(act, cred) {
                         var cb = this.callback;
                         Step(
                             function() {
-                                var url = "http://localhost:4815/api/group?id=tag:pump.io,2012:test:group:1";
+                                var url = "http://localhost:4815/api/image?id=tag:pump.io,2012:test:image:1";
                                 httputil.getJSON(url, cred, this);
                             },
                             function(err, doc, response) {
@@ -160,43 +160,20 @@ suite.addBatch({
                             }
                         );
                     },
-                    "it works": function(err, group) {
+                    "it works": function(err, image) {
                         assert.ifError(err);
                     },
-                    "it looks correct": function(err, group) {
+                    "it looks correct": function(err, image) {
                         assert.ifError(err);
-                        validActivityObject(group);
+                        validActivityObject(image);
                     }
                 },
-                "and we GET the group members": {
+                "and we GET the image replies": {
                     topic: function(act, cred) {
                         var cb = this.callback;
                         Step(
                             function() {
-                                var url = "http://localhost:4815/api/group/members?id=tag:pump.io,2012:test:group:1";
-                                httputil.getJSON(url, cred, this);
-                            },
-                            function(err, doc, response) {
-                                cb(err, doc);
-                            }
-                        );
-                    },
-                    "it works": function(err, feed) {
-                        assert.ifError(err);
-                        validFeed(feed);
-                    },
-                    "it's empty": function(err, feed) {
-                        assert.ifError(err);
-                        assert.equal(feed.totalItems, 0);
-                        assert.isTrue(!_.has(feed, "items") || (_.isArray(feed.items) && feed.items.length === 0));
-                    }
-                },
-                "and we GET the group inbox": {
-                    topic: function(act, cred) {
-                        var cb = this.callback;
-                        Step(
-                            function() {
-                                var url = "http://localhost:4815/api/group/inbox?id=tag:pump.io,2012:test:group:1";
+                                var url = "http://localhost:4815/api/image/replies?id=tag:pump.io,2012:test:image:1";
                                 httputil.getJSON(url, cred, this);
                             },
                             function(err, doc, response) {
@@ -214,12 +191,35 @@ suite.addBatch({
                         assert.isTrue(!_.has(feed, "items") || (_.isArray(feed.items) && feed.items.length === 0));
                     }
                 },
-                "and we GET the group documents feed": {
+                "and we GET the image likes": {
                     topic: function(act, cred) {
                         var cb = this.callback;
                         Step(
                             function() {
-                                var url = "http://localhost:4815/api/group/documents?id=tag:pump.io,2012:test:group:1";
+                                var url = "http://localhost:4815/api/image/likes?id=tag:pump.io,2012:test:image:1";
+                                httputil.getJSON(url, cred, this);
+                            },
+                            function(err, doc, response) {
+                                cb(err, doc);
+                            }
+                        );
+                    },
+                    "it works": function(err, feed) {
+                        assert.ifError(err);
+                        validFeed(feed);
+                    },
+                    "it's empty": function(err, feed) {
+                        assert.ifError(err);
+                        assert.equal(feed.totalItems, 0);
+                        assert.isTrue(!_.has(feed, "items") || (_.isArray(feed.items) && feed.items.length === 0));
+                    }
+                },
+                "and we GET the image shares": {
+                    topic: function(act, cred) {
+                        var cb = this.callback;
+                        Step(
+                            function() {
+                                var url = "http://localhost:4815/api/image/shares?id=tag:pump.io,2012:test:image:1";
                                 httputil.getJSON(url, cred, this);
                             },
                             function(err, doc, response) {
@@ -238,18 +238,18 @@ suite.addBatch({
                     }
                 }
             },
-            "and we create another group with a foreign ID and join it": {
+            "and we create another image with a foreign ID and comment on it": {
                 topic: function(cred) {
                     var cb = this.callback,
-                        url = "http://localhost:4815/api/user/walter/feed";
+                        url = "http://localhost:4815/api/user/jesse/feed";
                     Step(
                         function() {
                             var activity = {
                                 "verb": "create",
                                 "object": {
-                                    "objectType": "group",
-                                    "id": "tag:pump.io,2012:test:group:2",
-                                    "displayName": "Family"
+                                    "objectType": "image",
+                                    "id": "tag:pump.io,2012:test:image:2",
+                                    "displayName": "Mr. White yo"
                                 }
                             };
                             httputil.postJSON(url, cred, activity, this);
@@ -257,10 +257,14 @@ suite.addBatch({
                         function(err, doc, response) {
                             if (err) throw err;
                             var activity = {
-                                "verb": "join",
+                                "verb": "post",
                                 "object": {
-                                    "objectType": "group",
-                                    "id": "tag:pump.io,2012:test:group:2"
+                                    "objectType": "comment",
+                                    "content": "Nice picture!",
+                                    "inReplyTo": {
+                                        "objectType": "image",
+                                        "id": "tag:pump.io,2012:test:image:2"
+                                    }
                                 }
                             };
                             httputil.postJSON(url, cred, activity, this);
@@ -277,12 +281,12 @@ suite.addBatch({
                     assert.ifError(err);
                     validActivity(activity);
                 },
-                "and we GET the group members": {
+                "and we GET the image replies": {
                     topic: function(act, cred) {
                         var cb = this.callback;
                         Step(
                             function() {
-                                var url = "http://localhost:4815/api/group/members?id=tag:pump.io,2012:test:group:2";
+                                var url = "http://localhost:4815/api/image/replies?id=tag:pump.io,2012:test:image:2";
                                 httputil.getJSON(url, cred, this);
                             },
                             function(err, doc, response) {
@@ -300,18 +304,18 @@ suite.addBatch({
                     }
                 }
             },
-            "and we create another group with a foreign ID and post to it": {
+            "and we create another image with a foreign ID and like it": {
                 topic: function(cred) {
                     var cb = this.callback,
-                        url = "http://localhost:4815/api/user/walter/feed";
+                        url = "http://localhost:4815/api/user/jesse/feed";
                     Step(
                         function() {
                             var activity = {
                                 "verb": "create",
                                 "object": {
-                                    "objectType": "group",
-                                    "id": "tag:pump.io,2012:test:group:3",
-                                    "displayName": "Enemies"
+                                    "objectType": "image",
+                                    "id": "tag:pump.io,2012:test:image:3",
+                                    "displayName": "Mike. He's OK."
                                 }
                             };
                             httputil.postJSON(url, cred, activity, this);
@@ -319,14 +323,10 @@ suite.addBatch({
                         function(err, doc, response) {
                             if (err) throw err;
                             var activity = {
-                                "verb": "post",
-                                "to": [{
-                                    "objectType": "group",
-                                    "id": "tag:pump.io,2012:test:group:3"
-                                }],
+                                "verb": "like",
                                 "object": {
-                                    "objectType": "note",
-                                    "content": "I am the one who knocks."
+                                    "objectType": "image",
+                                    "id": "tag:pump.io,2012:test:image:3"
                                 }
                             };
                             httputil.postJSON(url, cred, activity, this);
@@ -343,12 +343,12 @@ suite.addBatch({
                     assert.ifError(err);
                     validActivity(activity);
                 },
-                "and we GET the group inbox": {
+                "and we GET the image likes": {
                     topic: function(act, cred) {
                         var cb = this.callback;
                         Step(
                             function() {
-                                var url = "http://localhost:4815/api/group/inbox?id=tag:pump.io,2012:test:group:3";
+                                var url = "http://localhost:4815/api/image/likes?id=tag:pump.io,2012:test:image:3";
                                 httputil.getJSON(url, cred, this);
                             },
                             function(err, doc, response) {
@@ -360,27 +360,27 @@ suite.addBatch({
                         assert.ifError(err);
                         validFeed(feed);
                     },
-                    "it's got our activity": function(err, feed, act) {
+                    "it's got our person": function(err, feed, act) {
                         assert.ifError(err);
                         assert.equal(feed.totalItems, 1);
                         assert.equal(feed.items.length, 1);
                         assert.isObject(feed.items[0]);
-                        assert.equal(feed.items[0].id, act.id);
+                        assert.equal(feed.items[0].id, act.actor.id);
                     }
                 }
             },
-            "and we create another group with a foreign ID and post an image to it": {
+            "and we create another image with a foreign ID and share it": {
                 topic: function(cred) {
                     var cb = this.callback,
-                        url = "http://localhost:4815/api/user/walter/feed";
+                        url = "http://localhost:4815/api/user/jesse/feed";
                     Step(
                         function() {
                             var activity = {
                                 "verb": "create",
                                 "object": {
-                                    "objectType": "group",
-                                    "id": "tag:pump.io,2012:test:group:4",
-                                    "displayName": "Criminals"
+                                    "objectType": "image",
+                                    "id": "tag:pump.io,2012:test:image:4",
+                                    "displayName": "Me playing Rage"
                                 }
                             };
                             httputil.postJSON(url, cred, activity, this);
@@ -388,27 +388,10 @@ suite.addBatch({
                         function(err, doc, response) {
                             if (err) throw err;
                             var activity = {
-                                "verb": "join",
+                                "verb": "share",
                                 "object": {
-                                    "objectType": "group",
-                                    "id": "tag:pump.io,2012:test:group:4"
-                                }
-                            };
-                            httputil.postJSON(url, cred, activity, this);
-                        },
-                        function(err, doc, response) {
-                            if (err) throw err;
-                            var activity = {
-                                "verb": "post",
-				object: {
-				    id: "http://photo.example/heisenberg/me-making-meth.jpg",
-				    objectType: "image",
-				    displayName: "Ha ha ha",
-				    url: "http://photo.example/heisenberg/me-making-meth.jpg"
-				},
-                                "target": {
-                                    "objectType": "group",
-                                    "id": "tag:pump.io,2012:test:group:4"
+                                    "objectType": "image",
+                                    "id": "tag:pump.io,2012:test:image:4"
                                 }
                             };
                             httputil.postJSON(url, cred, activity, this);
@@ -425,12 +408,12 @@ suite.addBatch({
                     assert.ifError(err);
                     validActivity(activity);
                 },
-                "and we GET the documents feed": {
+                "and we GET the shares": {
                     topic: function(act, cred) {
                         var cb = this.callback;
                         Step(
                             function() {
-                                var url = "http://localhost:4815/api/group/documents?id=tag:pump.io,2012:test:group:4";
+                                var url = "http://localhost:4815/api/image/shares?id=tag:pump.io,2012:test:image:4";
                                 httputil.getJSON(url, cred, this);
                             },
                             function(err, doc, response) {
@@ -442,12 +425,12 @@ suite.addBatch({
                         assert.ifError(err);
                         validFeed(feed);
                     },
-                    "it's got our activity": function(err, feed, act) {
+                    "it's got our person": function(err, feed, act) {
                         assert.ifError(err);
                         assert.equal(feed.totalItems, 1);
                         assert.equal(feed.items.length, 1);
                         assert.isObject(feed.items[0]);
-                        assert.equal(feed.items[0].id, act.object.id);
+                        assert.equal(feed.items[0].id, act.actor.id);
                     }
                 }
             }
