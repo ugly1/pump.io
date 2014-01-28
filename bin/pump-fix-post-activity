@@ -92,7 +92,7 @@ var main = function() {
             } else if (!author) {
                 throw new Error("No author specified");
             } else {
-                ActivityObject.getObject(author, authorType, this);
+                ActivityObject.getObject(authorType, author, this);
             }
         },
         function(err, author) {
