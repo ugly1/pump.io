@@ -19,12 +19,12 @@ url = require("url")
 qs = require("querystring")
 Step = require("step")
 _ = require("underscore")
-authc = require("../lib/authc")
+authc = require("../authc")
 RequestToken = require("../model/requesttoken").RequestToken
 AccessToken = require("../model/accesstoken").AccessToken
 Client = require("../model/client").Client
 User = require("../model/user").User
-HTTPError = require("../lib/httperror").HTTPError
+HTTPError = require("../httperror").HTTPError
 
 # Renders the login form
 # Will *skip* the login form if the user is already logged in

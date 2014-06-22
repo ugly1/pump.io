@@ -19,10 +19,10 @@ _ = require("underscore")
 Step = require("step")
 validator = require("validator")
 check = validator.check
-dialback = require("../lib/dialback")
+dialback = require("../dialback")
 maybeDialback = dialback.maybeDialback
 Client = require("../model/client").Client
-HTTPError = require("../lib/httperror").HTTPError
+HTTPError = require("../httperror").HTTPError
 addRoutes = (app) ->
   
   # Client registration

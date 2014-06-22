@@ -22,8 +22,8 @@ Step = require("step")
 validator = require("validator")
 check = validator.check
 sanitize = validator.sanitize
-HTTPError = require("../lib/httperror").HTTPError
-URLMaker = require("../lib/urlmaker").URLMaker
+HTTPError = require("../httperror").HTTPError
+URLMaker = require("../urlmaker").URLMaker
 User = require("../model/user").User
 ActivityObject = require("../model/activityobject").ActivityObject
 

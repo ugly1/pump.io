@@ -21,7 +21,7 @@ cutils = connect.utils
 fs = require("fs")
 path = require("path")
 Step = require("step")
-HTTPError = require("../lib/httperror").HTTPError
+HTTPError = require("../httperror").HTTPError
 
 # Default expires is one year
 EXPIRES = 365 * 24 * 60 * 60 * 1000

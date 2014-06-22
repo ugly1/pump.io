@@ -17,9 +17,9 @@
 # limitations under the License.
 _ = require("underscore")
 Step = require("step")
-authc = require("../lib/authc")
-HTTPError = require("../lib/httperror").HTTPError
-URLMaker = require("../lib/urlmaker").URLMaker
+authc = require("../authc")
+HTTPError = require("../httperror").HTTPError
+URLMaker = require("../urlmaker").URLMaker
 Confirmation = require("../model/confirmation").Confirmation
 User = require("../model/user").User
 setPrincipal = authc.setPrincipal
