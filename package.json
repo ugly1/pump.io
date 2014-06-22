@@ -1,4 +1,8 @@
 {
+  "name" : "pump.io",
+  "version" : "0.4.0-alpha.1",
+  "author" : "Evan Prodromou <evan@e14n.com>",
+  "homepage" : "http://pump.io/",
    "licenses" : [
       {
          "url" : "http://www.apache.org/licenses/LICENSE-2.0.html",
@@ -24,7 +28,6 @@
       "node-mocks-http" : "0.0.x",
       "zombie" : "1.4.x"
    },
-   "version" : "0.4.0-alpha.1",
    "keywords" : [
       "activitystreams",
       "socialnetwork",
@@ -35,7 +38,7 @@
       "app",
       "server"
    ],
-   "homepage" : "http://pump.io/",
+   "preferGlobal" : "true",
    "dependencies" : {
       "bcrypt" : "0.7.x",
       "express" : "2.5.x",
@@ -65,9 +68,6 @@
       "bunyan" : "0.16.x",
       "webfinger" : "~0.4.2"
    },
-   "name" : "pump.io",
-   "author" : "Evan Prodromou <evan@e14n.com>",
-   "preferGlobal" : "true",
    "bin" : {
       "pump-authorize" : "./bin/pump-authorize",
       "pump-stop-following" : "./bin/pump-stop-following",
