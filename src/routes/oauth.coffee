@@ -20,10 +20,10 @@ qs = require("querystring")
 Step = require("step")
 _ = require("underscore")
 authc = require("../lib/authc")
-RequestToken = require("../lib/model/requesttoken").RequestToken
-AccessToken = require("../lib/model/accesstoken").AccessToken
-Client = require("../lib/model/client").Client
-User = require("../lib/model/user").User
+RequestToken = require("../model/requesttoken").RequestToken
+AccessToken = require("../model/accesstoken").AccessToken
+Client = require("../model/client").Client
+User = require("../model/user").User
 HTTPError = require("../lib/httperror").HTTPError
 
 # Renders the login form

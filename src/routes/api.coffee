@@ -32,15 +32,15 @@ Stamper = require("../lib/stamper").Stamper
 Mailer = require("../lib/mailer")
 Scrubber = require("../lib/scrubber")
 ActivitySpam = require("../lib/activityspam")
-Activity = require("../lib/model/activity").Activity
-AppError = require("../lib/model/activity").AppError
-ActivityObject = require("../lib/model/activityobject").ActivityObject
-Confirmation = require("../lib/model/confirmation").Confirmation
-User = require("../lib/model/user").User
-Person = require("../lib/model/person").Person
-Proxy = require("../lib/model/proxy").Proxy
-Credentials = require("../lib/model/credentials").Credentials
-stream = require("../lib/model/stream")
+Activity = require("../model/activity").Activity
+AppError = require("../model/activity").AppError
+ActivityObject = require("../model/activityobject").ActivityObject
+Confirmation = require("../model/confirmation").Confirmation
+User = require("../model/user").User
+Person = require("../model/person").Person
+Proxy = require("../model/proxy").Proxy
+Credentials = require("../model/credentials").Credentials
+stream = require("../model/stream")
 Stream = stream.Stream
 NotInStreamError = stream.NotInStreamError
 URLMaker = require("../lib/urlmaker").URLMaker
@@ -522,7 +522,7 @@ usersStream = (callback) ->
   return
 
 thisService = (app) ->
-  Service = require("../lib/model/service").Service
+  Service = require("../model/service").Service
   new Service(
     objectType: Service.type
     url: URLMaker.makeURL("/")

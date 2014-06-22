@@ -24,8 +24,8 @@ check = validator.check
 sanitize = validator.sanitize
 HTTPError = require("../lib/httperror").HTTPError
 URLMaker = require("../lib/urlmaker").URLMaker
-User = require("../lib/model/user").User
-ActivityObject = require("../lib/model/activityobject").ActivityObject
+User = require("../model/user").User
+ActivityObject = require("../model/activityobject").ActivityObject
 
 # Initialize the app controller
 addRoutes = (app) ->

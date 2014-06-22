@@ -21,7 +21,7 @@ validator = require("validator")
 check = validator.check
 dialback = require("../lib/dialback")
 maybeDialback = dialback.maybeDialback
-Client = require("../lib/model/client").Client
+Client = require("../model/client").Client
 HTTPError = require("../lib/httperror").HTTPError
 addRoutes = (app) ->
   
