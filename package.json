@@ -18,7 +18,14 @@
    },
    "scripts" : {
       "test" : "vows test/*-test.js",
-      "start" : "./bin/pump"
+      "start" : "./bin/pump",
+      "pretest": "coffee -c test/*-test.coffee && coffee -o lib/ -c src/*.coffee",
+      "test": "vows --spec -i test/*-test.js",
+      "posttest": "rm -f test/*-test.js lib/*.js",
+      "build": "coffee -b -c -o lib/ src/*.coffee",
+      "prepublish": "mkdir -p lib/ && coffee -b -c -o lib/ src/*.coffee",
+      "postpublish": "rm lib/*.js",
+      "clean": "rm -f lib/*.js test/*-test.js *~ lib/*~ src/*~ test/*~"
    },
    "devDependencies" : {
       "rimraf" : "2.0.x",
