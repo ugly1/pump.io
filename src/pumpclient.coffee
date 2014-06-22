@@ -79,7 +79,7 @@ postReport = (payload) ->
 postArgs = (serverUrl, args, callback) ->
   requestBody = querystring.stringify(args)
   parts = url.parse(serverUrl)
-  
+
   # An object of options to indicate where to post to
   options =
     host: parts.hostname
@@ -92,7 +92,7 @@ postArgs = (serverUrl, args, callback) ->
       "User-Agent": "pump.io/" + version
 
   mod = (if (parts.protocol is "https:") then https else http)
-  
+
   # Set up the request
   req = mod.request(options, (res) ->
     body = ""
@@ -112,7 +112,7 @@ postArgs = (serverUrl, args, callback) ->
 
     return
   )
-  
+
   # post the data
   req.write requestBody
   req.end()
@@ -159,7 +159,7 @@ ensureDir = (dirName, callback) ->
   ), ((err, stat) ->
     if err
       if err.code is "ENOENT"
-        fs.mkdir dirName, 0700, this
+        fs.mkdir dirName, 0o700, this
       else
         throw err
     else unless stat.isDirectory()
@@ -182,7 +182,7 @@ setClientCred = (host, cred, callback) ->
     return
   ), ((err) ->
     throw err  if err
-    fs.chmod fname, 0600, this
+    fs.chmod fname, 0o600, this
     return
   ), callback
   return
@@ -204,7 +204,7 @@ setUserCred = (username, host, cred, callback) ->
     return
   ), ((err) ->
     throw err  if err
-    fs.chmod fname, 0600, this
+    fs.chmod fname, 0o600, this
     return
   ), callback
   return

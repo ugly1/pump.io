@@ -17,15 +17,15 @@
       "type" : "git"
    },
    "scripts" : {
-      "test" : "vows test/*-test.js",
       "start" : "./bin/pump",
-      "pretest": "coffee -c test/*-test.coffee && coffee -o lib/ -c src/*.coffee",
+      "pretest": "npm run-script build && npm run-script build-test",
       "test": "vows --spec -i test/*-test.js",
-      "posttest": "rm -f test/*-test.js lib/*.js",
-      "build": "coffee -b -c -o lib/ src/*.coffee",
-      "prepublish": "mkdir -p lib/ && coffee -b -c -o lib/ src/*.coffee",
-      "postpublish": "rm lib/*.js",
-      "clean": "rm -f lib/*.js test/*-test.js *~ lib/*~ src/*~ test/*~"
+      "posttest": "npm run-script clean",
+      "build": "mkdir -p lib/ lib/model lib/routes && coffee -b -c -o lib/ src/*.coffee && coffee -b -c -o lib/model/ src/model/*.coffee && coffee -b -c -o lib/routes/ src/routes/*.coffee",
+      "build-test": "coffee -c test/*.coffee && coffee -c test/lib/*.coffee",
+      "prepublish": "npm run-script build && npm run-script build-test",
+      "postpublish": "npm run-script clean",
+      "clean": "rm -f lib/*.js lib/model/*.js lib/routes/*.js test/*-test.js *~ lib/*~ lib/model/*~ lib/routes/*~ src/*~ test/*~"
    },
    "devDependencies" : {
       "rimraf" : "2.0.x",
