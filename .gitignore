@@ -15,3 +15,9 @@ node_modules
 npm-debug.log
 
 config.js
+
+lib/*.js
+lib/model/*.js
+lib/routes/*.js
+test/*.js
+test/lib/*.js
