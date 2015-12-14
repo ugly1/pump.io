@@ -55,7 +55,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/e14n/pump.io.git"
+        "url": "git://github.com/ugly1/pump.io.git"
     },
     "keywords": ["activitystreams", "socialnetwork", "social", "pump", "streams", "api", "app", "server"],
     "license": "Apache-2.0",
