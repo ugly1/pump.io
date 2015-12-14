@@ -1,7 +1,7 @@
 {
-    "name": "pump.io",
+    "name": "fixme",
     "preferGlobal": "true",
-    "homepage": "http://pump.io/",
+    "homepage": "http://fixme-fixme.rhcloud.com/",
     "version": "0.3.0",
     "author": "Evan Prodromou <evan@e14n.com>",
     "devDependencies": {
